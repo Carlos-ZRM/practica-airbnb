@@ -14,7 +14,9 @@ class graph_info:
     Generates comprehensive HTML report with all visualizations.
     """
     
-    def __init__(self, df):
+    def __init__(self, df, list_num_variables: list = None, 
+                list_cat_variables: list = None,
+                list_bool_variables: list = None  ) -> None:
         """
         Initialize the class and automatically detect variable types.
         
@@ -22,11 +24,28 @@ class graph_info:
         -----------
         df : pd.DataFrame
             Input dataframe to analyze
+        list_num_variables : list, optional
+            List of numerical variable names (if not provided, auto-detected)
+        list_cat_variables : list, optional
+            List of categorical variable names (if not provided, auto-detected)
+        list_bool_variables : list, optional
+            List of boolean variable names (if not provided, auto-detected) 
         """
         self.df = df
-        self.var_num = df.select_dtypes(include=['number']).columns.tolist()
-        self.var_bool = df.select_dtypes(include=['bool']).columns.tolist()
-        self.var_cat = df.select_dtypes(include=['object']).columns.tolist()
+        if list_num_variables is not None:
+            self.var_num = list_num_variables
+        else:
+            self.var_num = df.select_dtypes(include=['number']).columns.tolist()
+        
+        if list_bool_variables is not None:
+            self.var_bool = list_bool_variables
+        else:
+            self.var_bool = df.select_dtypes(include=['bool']).columns.tolist()
+        
+        if list_cat_variables is not None:
+            self.var_cat = list_cat_variables
+        else:
+            self.var_cat = df.select_dtypes(include=['object']).columns.tolist()
         
         # Also check for string dtype explicitly
         self.var_cat.extend(df.select_dtypes(include=['string']).columns.tolist())
@@ -75,7 +94,7 @@ class graph_info:
         image_base64 = base64.b64encode(buffer.read()).decode()
         return image_base64
     
-    def _generate_table_rows(self):
+    def _generate_table_rows(self) -> str:
         """
         Generate HTML table rows for columns and their data types.
         
@@ -562,7 +581,7 @@ class graph_info:
         print(f"✓ HTML report generated: {filename}")
         return filename
     
-    def get_summary(self):
+    def get_summary(self) -> dict:
         """
         Get a summary of identified variable types.
         

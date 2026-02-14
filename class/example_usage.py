@@ -4,7 +4,7 @@ Example usage of the graph_info class for comprehensive data analysis and visual
 
 import pandas as pd
 import numpy as np
-from graph_info import graph_info
+from class.class_graph_info import graph_info
 
 # ============================================================================
 # Example 1: Create Sample DataFrame (with mixed variable types)
