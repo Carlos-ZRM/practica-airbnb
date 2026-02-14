@@ -482,6 +482,86 @@ class DataFrameColumnFilter:
         
         return np.array(days_diff, dtype=float)
 
+    @staticmethod
+    def cast_boolean(column: Union[np.ndarray, pd.Series], 
+                    true_values: List[Any] = None,
+                    false_values: List[Any] = None,
+                    handle_nan: bool = False) -> np.ndarray:
+        """
+        Convert a column with string boolean values to actual boolean values.
+        
+        By default converts: 't', 'T', 'true', 'True', 'TRUE', '1', 1 → True
+                            'f', 'F', 'false', 'False', 'FALSE', '0', 0 → False
+        
+        Args:
+            column: A numpy array or pandas Series containing boolean-like values
+            true_values: List of values to consider as True (default: 't', 'T', 'true', 'True', 'TRUE', '1', 1, True)
+            false_values: List of values to consider as False (default: 'f', 'F', 'false', 'False', 'FALSE', '0', 0, False)
+            handle_nan: If True, convert NaN/None to False; if False, keep as NaN (default: False)
+            
+        Returns:
+            numpy array of boolean/object values (contains NaN if handle_nan=False)
+            
+        Raises:
+            ValueError: If a value cannot be converted to boolean
+            
+        Examples:
+            >>> import numpy as np
+            >>> import pandas as pd
+            >>> col = np.array(['t', 'f', 't', 'f', 'true', 'false'])
+            >>> result = DataFrameColumnFilter.cast_boolean(col)
+            >>> print(result)
+            [True False True False True False]
+        """
+        # Convert to numpy array if pandas Series
+        if isinstance(column, pd.Series):
+            column = column.values
+        
+        # Set default true and false values
+        if true_values is None:
+            true_values = ['t', 'T', 'true', 'True', 'TRUE', '1', 1, True, 1.0]
+        
+        if false_values is None:
+            false_values = ['f', 'F', 'false', 'False', 'FALSE', '0', 0, False, 0.0]
+        
+        booleans = []
+        
+        for value in column:
+            try:
+                # Handle None/NaN values
+                if value is None:
+                    if handle_nan:
+                        booleans.append(False)
+                    else:
+                        booleans.append(np.nan)
+                    continue
+                
+                # Check for NaN safely
+                try:
+                    if pd.isna(value):
+                        if handle_nan:
+                            booleans.append(False)
+                        else:
+                            booleans.append(np.nan)
+                        continue
+                except (ValueError, TypeError):
+                    pass
+                
+                # Check true values
+                if value in true_values:
+                    booleans.append(True)
+                # Check false values
+                elif value in false_values:
+                    booleans.append(False)
+                else:
+                    raise ValueError(f"Value '{value}' is not recognized as True or False")
+                    
+            except Exception as e:
+                raise ValueError(f"Cannot convert '{value}' to boolean: {str(e)}")
+        
+        return np.array(booleans, dtype=object)
+    
+    
 # # Example usage and testing
 # if __name__ == "__main__":
 #     # Initialize the filter class
