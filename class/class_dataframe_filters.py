@@ -168,20 +168,6 @@ class DataFrameColumnFilter:
         
         return np.array(column, dtype=float)
 
-import numpy as np
-import pandas as pd
-from typing import Union, List, Any
-import re
-
-
-class DataFrameColumnFilter:
-    """
-    Utility class for filtering and transforming DataFrame columns.
-    
-    Provides methods for common data cleaning operations like type conversion,
-    list length calculation, and handling null values.
-    """
-    
     @staticmethod
     def cast_float(column: Union[np.ndarray, pd.Series], nan_to_zero: bool = False) -> np.ndarray:
         """
