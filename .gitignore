@@ -81,3 +81,7 @@ ipython_config.py
 *.csv
 *.xlsx
 *.json
+
+*/*.csv
+*/*.xlsx
+*/*.json
